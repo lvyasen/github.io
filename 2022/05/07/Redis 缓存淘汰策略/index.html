@@ -1,0 +1,221 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Redis 缓存淘汰策略 | walker</title><meta name="author" content="walker"><meta name="copyright" content="walker"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="redis 有哪些缓存淘汰策略? redis 数据过期策略采用定期删除+惰性删除   volatile-LRU least recently used 优先删除最近最少使用,只针对设置了 expire 过期时间的 key 生效 allkeys-LRU 所有 key 通用,优先删除最近最少使用的 key volatile-LFU 优先删除最不常用的 key random 随机删除一部分 key tt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 缓存淘汰策略">
+<meta property="og:url" content="http://example.com/2022/05/07/Redis%20%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/index.html">
+<meta property="og:site_name" content="walker">
+<meta property="og:description" content="redis 有哪些缓存淘汰策略? redis 数据过期策略采用定期删除+惰性删除   volatile-LRU least recently used 优先删除最近最少使用,只针对设置了 expire 过期时间的 key 生效 allkeys-LRU 所有 key 通用,优先删除最近最少使用的 key volatile-LFU 优先删除最不常用的 key random 随机删除一部分 key tt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-05-07T04:17:47.000Z">
+<meta property="article:modified_time" content="2023-01-03T00:52:11.716Z">
+<meta property="article:author" content="walker">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/05/07/Redis%20%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'mediumZoom',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Redis 缓存淘汰策略',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-03 08:52:11'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">walker</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Redis 缓存淘汰策略</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-07T04:17:47.000Z" title="发表于 2022-05-07 12:17:47">2022-05-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-03T00:52:11.716Z" title="更新于 2023-01-03 08:52:11">2023-01-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Redis/">Redis</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Redis 缓存淘汰策略"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h3 id="redis-有哪些缓存淘汰策略"><a href="#redis-有哪些缓存淘汰策略" class="headerlink" title="redis 有哪些缓存淘汰策略?"></a>redis 有哪些缓存淘汰策略?</h3><blockquote>
+<p>redis 数据过期策略采用定期删除+惰性删除</p>
+</blockquote>
+<ol>
+<li>volatile-LRU least recently used 优先删除最近最少使用,只针对设置了 expire 过期时间的 key 生效</li>
+<li>allkeys-LRU 所有 key 通用,优先删除最近最少使用的 key</li>
+<li>volatile-LFU 优先删除最不常用的 key</li>
+<li>random 随机删除一部分 key</li>
+<li>ttl 优先删除剩余时间最短的 key</li>
+</ol>
+<h3 id="缓存过期"><a href="#缓存过期" class="headerlink" title="缓存过期"></a>缓存过期</h3><h4 id="maxmemory"><a href="#maxmemory" class="headerlink" title="maxmemory"></a>maxmemory</h4><p>maxmemory：默认设置为 0 不限制。<br>问题：超过物理内存后性能急剧下降，甚至崩溃，硬盘与内存交换（swap）虚拟内存，频繁 IO 性能急剧下降。当趋近 maxmemory 时，通过缓存淘汰策略从内存中删除对象。<br>设置方式：<br>在 redis.conf 中</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">maxmemory 1024mb</span><br><span class="line"></span><br><span class="line"><span class="comment">#获取配置命令</span></span><br><span class="line">config get maxmemory</span><br></pre></td></tr></table></figure>
+
+<h4 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h4><p>使用 expire 设置一个键的存活时间（ttl：time to live），过了这段时间，该键会自动被删除</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">expire key 2 <span class="comment">#2s 后失效</span></span><br><span class="line">ttl key <span class="comment">#查看失效状态，负数为永久失效</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="淘汰策略"><a href="#淘汰策略" class="headerlink" title="淘汰策略"></a>淘汰策略</h3><h4 id="定时删除"><a href="#定时删除" class="headerlink" title="定时删除"></a>定时删除</h4><p>创建定时器，设置键过期时间同时，立即对键执行删除操作，消耗 cpu ，不推荐</p>
+<h4 id="惰性删除"><a href="#惰性删除" class="headerlink" title="惰性删除"></a>惰性删除</h4><p>读取的时候，检查是否失效，失效就删除，调用 expireIfNeeded</p>
+<h4 id="主动删除"><a href="#主动删除" class="headerlink" title="主动删除"></a>主动删除</h4><p>在 reids.conf 中配置主动删除策略，默认是 no-enviction（不删除）。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">maxmemory-policy 淘汰策略</span><br></pre></td></tr></table></figure>
+
+<h5 id="LRU"><a href="#LRU" class="headerlink" title="LRU"></a>LRU</h5><p>LRU（least recently used）最近最少使用，算法根据数据的历史访问记录来进行淘汰数据，其核心思想是‘如果数据最近被访问过，那么将来被访问的几率也更高’</p>
+<figure class="highlight markdown"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">### 实现策略</span></span><br><span class="line"></span><br><span class="line"><span class="bullet">1.</span> 新数据插入到链表头部；</span><br><span class="line"><span class="bullet">2.</span> 每当缓存命中时（即缓存数据被访问），则将数据移动到链表头部；</span><br><span class="line"><span class="bullet">3.</span> 当链表满的时候，将链表尾部数据丢弃。</span><br><span class="line"><span class="bullet">4.</span> 在 java 中可以使用 LinkHashMap（哈希链表）去实现 LRU。</span><br><span class="line">   在服务器配置中保存了 lru 计数器 server.lrulock，会定时（redis 定时程序 serverCorn()）更新，server.lrulock 的值是根据 server.unixtime 计算出来的。另外，从 struct redisObject 中可以发现，每一个 redis 对象都会设置相应的 lru。可以想象的是，每一次访问数据的时候，会更新 redisObject.lru。</span><br><span class="line">   LRU 数据淘汰机制是这样的：在数据集中随机挑选几个键值对，取出其中 lru 最大的键值对淘汰。不可能遍历 key 用当前时间-最近访问 越大 说明 访问间隔时间越长</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>volatile-lru： 从已设置过期时间的数据集中挑选最近最少使用的数据淘汰。</li>
+<li>allkeys-lru：从数据集中挑选最近最少使用数据淘汰。</li>
+</ol>
+<h5 id="RANDOM"><a href="#RANDOM" class="headerlink" title="RANDOM"></a>RANDOM</h5><ol>
+<li>volatile-random：从设置过期时间的数据集中随机选择数据淘汰</li>
+<li>allkeys-random：从数据集中随机选取数据淘汰</li>
+</ol>
+<h4 id="TTL（time-to-live）"><a href="#TTL（time-to-live）" class="headerlink" title="TTL（time to live）"></a>TTL（time to live）</h4><p>volatile-ttl：从设置过期时间的数据集中挑选将要过期的数据淘汰<br>TTL 淘汰机制：从过期时间的表中随机挑选几个键值对，取出其中 ttl 最小的键值对淘汰。</p>
+<h4 id="noenviction"><a href="#noenviction" class="headerlink" title="noenviction"></a>noenviction</h4><p>禁止驱逐数据，不删除 默认</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">walker</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/05/07/Redis%20%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/">http://example.com/2022/05/07/Redis%20%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">walker</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/redis/">redis</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/05/07/Redis%20%E4%B8%BB%E4%BB%8E/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Redis 主从</div></div></a></div><div class="next-post pull-right"><a href="/2022/05/07/Redis%20%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Redis 数据类型</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/05/07/Redis%20%E4%B8%BB%E4%BB%8E/" title="Redis 主从"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-07</div><div class="title">Redis 主从</div></div></a></div><div><a href="/2022/05/07/Redis%20%E5%88%86%E5%8C%BA/" title="Redis 分区"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-07</div><div class="title">Redis 分区</div></div></a></div><div><a href="/2022/05/09/Redis%20%E6%89%A9%E5%B1%95%E5%8A%9F%E8%83%BD/" title="Redis 扩展功能"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-09</div><div class="title">Redis 扩展功能</div></div></a></div><div><a href="/2022/05/07/Redis%20%E6%8C%81%E4%B9%85%E5%8C%96/" title="Redis 持久化"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-07</div><div class="title">Redis 持久化</div></div></a></div><div><a href="/2022/05/07/Redis%20%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" title="Redis 数据类型"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-05-07</div><div class="title">Redis 数据类型</div></div></a></div><div><a href="/2022/11/21/Redis%20%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" title="Redis 消息队列"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-21</div><div class="title">Redis 消息队列</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">walker</div><div class="author-info__description">学如逆水行舟不进则退</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/lvyasen" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:18530893662@163.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#redis-%E6%9C%89%E5%93%AA%E4%BA%9B%E7%BC%93%E5%AD%98%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5"><span class="toc-number">1.</span> <span class="toc-text">redis 有哪些缓存淘汰策略?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E8%BF%87%E6%9C%9F"><span class="toc-number">2.</span> <span class="toc-text">缓存过期</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#maxmemory"><span class="toc-number">2.1.</span> <span class="toc-text">maxmemory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#expire"><span class="toc-number">2.2.</span> <span class="toc-text">expire</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5"><span class="toc-number">3.</span> <span class="toc-text">淘汰策略</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9A%E6%97%B6%E5%88%A0%E9%99%A4"><span class="toc-number">3.1.</span> <span class="toc-text">定时删除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%83%B0%E6%80%A7%E5%88%A0%E9%99%A4"><span class="toc-number">3.2.</span> <span class="toc-text">惰性删除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E5%8A%A8%E5%88%A0%E9%99%A4"><span class="toc-number">3.3.</span> <span class="toc-text">主动删除</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#LRU"><span class="toc-number">3.3.1.</span> <span class="toc-text">LRU</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#RANDOM"><span class="toc-number">3.3.2.</span> <span class="toc-text">RANDOM</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TTL%EF%BC%88time-to-live%EF%BC%89"><span class="toc-number">3.4.</span> <span class="toc-text">TTL（time to live）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#noenviction"><span class="toc-number">3.5.</span> <span class="toc-text">noenviction</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" title="常用解决方案">常用解决方案</a><time datetime="2023-01-02T09:32:58.000Z" title="发表于 2023-01-02 17:32:58">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/Go%20ORM/" title="Go ORM">Go ORM</a><time datetime="2023-01-02T05:10:25.000Z" title="发表于 2023-01-02 13:10:25">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E9%83%A8%E7%BD%B2/" title="Kubernetes 部署">Kubernetes 部署</a><time datetime="2022-12-31T06:27:06.000Z" title="发表于 2022-12-31 14:27:06">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E5%AE%89%E8%A3%85/" title="Kubernetes 安装">Kubernetes 安装</a><time datetime="2022-12-31T06:01:53.000Z" title="发表于 2022-12-31 14:01:53">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/" title="Kubernetes 简介">Kubernetes 简介</a><time datetime="2022-12-31T05:51:00.000Z" title="发表于 2022-12-31 13:51:00">2022-12-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By walker</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

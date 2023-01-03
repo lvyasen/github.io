@@ -1,0 +1,336 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>PHP 面试 | walker</title><meta name="author" content="walker"><meta name="copyright" content="walker"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="基础1： echo 、print()、print_r()、sprintf()、vardump 区别？   echo 是语句没有返回值，可输出多个变量，不能输出数组和对象只能打印 int 和 string。 print 是语句不是函数，有返回值，只能输出一个变量，不需要圆括号，不能输出数组和对象。 print_r() 是函数，可以打印复合类型。 printf() 是函数，把文字格式化后输出。 spr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP 面试">
+<meta property="og:url" content="http://example.com/2022/06/03/PHP%20%E9%9D%A2%E8%AF%95/index.html">
+<meta property="og:site_name" content="walker">
+<meta property="og:description" content="基础1： echo 、print()、print_r()、sprintf()、vardump 区别？   echo 是语句没有返回值，可输出多个变量，不能输出数组和对象只能打印 int 和 string。 print 是语句不是函数，有返回值，只能输出一个变量，不需要圆括号，不能输出数组和对象。 print_r() 是函数，可以打印复合类型。 printf() 是函数，把文字格式化后输出。 spr">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-06-03T00:45:51.000Z">
+<meta property="article:modified_time" content="2023-01-03T00:52:11.714Z">
+<meta property="article:author" content="walker">
+<meta property="article:tag" content="面试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/06/03/PHP%20%E9%9D%A2%E8%AF%95/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'mediumZoom',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'PHP 面试',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-03 08:52:11'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">walker</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">PHP 面试</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-06-03T00:45:51.000Z" title="发表于 2022-06-03 08:45:51">2022-06-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-03T00:52:11.714Z" title="更新于 2023-01-03 08:52:11">2023-01-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/PHP/">PHP</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="PHP 面试"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h1><p><strong>1： echo 、print()、print_r()、sprintf()、vardump 区别？</strong></p>
+<blockquote>
+<ol>
+<li>echo 是语句没有返回值，可输出多个变量，不能输出数组和对象只能打印 int 和 string。</li>
+<li>print 是语句不是函数，有返回值，只能输出一个变量，不需要圆括号，不能输出数组和对象。</li>
+<li>print_r() 是函数，可以打印复合类型。</li>
+<li>printf() 是函数，把文字格式化后输出。</li>
+<li>sprintf() 是函数，把文字格式化后写入一个变量而不是输出。</li>
+<li>var_dump() 是函数，输出变量的内容、类型或字符串的内容、类型、长度。用来调试。</li>
+</ol>
+</blockquote>
+<p><strong>2：php 获取图像尺寸大小的方法是什么？</strong></p>
+<blockquote>
+<ol>
+<li>getimagesize() 获取图片尺寸。</li>
+<li>imagesx() 获取图片宽度。</li>
+<li>imagesy() 获取图片高度。</li>
+</ol>
+</blockquote>
+<p><strong>3：php 中 PEAR 是什么？</strong></p>
+<blockquote>
+<p>PEAR（PHP Extension and Application Repository）PHP 扩展与应用库是一个代码仓库。</p>
+</blockquote>
+<p><strong>4： php 错误类型有哪些？</strong></p>
+<blockquote>
+<ol>
+<li>notice（提示）：比较正常的信息而非错误。</li>
+<li>warning（警告）：一般是一些常规错误，会将警告信息展示给用户，但是不会影响代码输出。</li>
+<li>error（错误）：这是比较严重的错误，会影响整个代码运行。</li>
+</ol>
+</blockquote>
+<p><strong>5：你知道有哪些排序算法？</strong></p>
+<blockquote>
+<ol>
+<li><strong>冒泡排序</strong></li>
+<li><strong>快速排序</strong></li>
+<li><strong>选择排序</strong></li>
+<li><strong>插入排序</strong></li>
+</ol>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="variable">$arr</span> = [<span class="number">12</span>,<span class="number">13</span>,<span class="number">2</span>,<span class="number">21</span>,<span class="number">6</span>,<span class="number">32</span>,<span class="number">78</span>,<span class="number">36</span>,<span class="number">76</span>,<span class="number">9</span>];</span><br><span class="line"><span class="comment">//冒泡排序 比较相邻的元素，如果第一个比第二个大，就交换他们。</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bubbleSort</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">  <span class="variable">$len</span> = <span class="title function_ invoke__">count</span>(<span class="variable">$arr</span>);</span><br><span class="line">  <span class="comment">//该层循环控制需要冒泡的次数</span></span><br><span class="line">  <span class="keyword">for</span>(<span class="variable">$i</span>=<span class="number">1</span>;<span class="variable">$i</span>&lt;<span class="variable">$len</span>;<span class="variable">$i</span>++)&#123;</span><br><span class="line">    <span class="comment">//该层循环用来控制每轮冒出一个泡</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="variable">$k</span>=<span class="number">0</span>;<span class="variable">$k</span>&lt;<span class="variable">$len</span>-<span class="variable">$i</span>;<span class="variable">$k</span>++)&#123;</span><br><span class="line">      <span class="variable">$tmp</span> = <span class="variable">$arr</span>[<span class="variable">$k</span>+<span class="number">1</span>];</span><br><span class="line">      <span class="variable">$arr</span>[<span class="variable">$k</span>+<span class="number">1</span>] = <span class="variable">$arr</span>[<span class="variable">$k</span>];</span><br><span class="line">      <span class="variable">$arr</span>[<span class="variable">$k</span>] = <span class="variable">$tmp</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable">$arr</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 选择排序：首先在末尾排序中找最小元素，并将其存放到序列起始位置，然后在从剩余未排序数组中寻找最小元素然后放到排列序列的末尾。</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">selectSort</span>(<span class="params"><span class="variable">$arr</span></span>)</span>&#123;</span><br><span class="line">  <span class="variable">$len</span> = <span class="title function_ invoke__">count</span>(<span class="variable">$arr</span>);</span><br><span class="line">  <span class="keyword">for</span>(<span class="variable">$i</span>=<span class="number">0</span>;<span class="variable">$i</span>&lt;<span class="variable">$len</span>-<span class="number">1</span>;<span class="variable">$i</span>++)&#123;</span><br><span class="line">    <span class="variable">$p</span> = <span class="variable">$i</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="variable">$k</span>=<span class="variable">$i</span>+<span class="number">1</span>;<span class="variable">$k</span>&lt;<span class="variable">$len</span>;<span class="variable">$k</span>++)&#123;</span><br><span class="line">      <span class="keyword">if</span>(<span class="variable">$arr</span>[<span class="variable">$p</span>]&gt;<span class="variable">$arr</span>[<span class="variable">$k</span>])&#123;</span><br><span class="line">        <span class="variable">$p</span> = <span class="variable">$k</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$p</span> != <span class="variable">$i</span>)&#123;</span><br><span class="line">      <span class="variable">$tmp</span> = <span class="variable">$arr</span>[<span class="variable">$p</span>];</span><br><span class="line">      <span class="variable">$arr</span>[<span class="variable">$p</span>] = <span class="variable">$arr</span>[<span class="variable">$i</span>];</span><br><span class="line">      <span class="variable">$arr</span>[<span class="variable">$i</span>] = <span class="variable">$tmp</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable">$arr</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 插入排序 通过构建有序序列，对于未排序数据，在已排序序列中从后向前扫描，找到相应位置并插入。</span></span><br><span class="line"><span class="comment">//1、从第一个元素开始，该元素可以认为已经被排序</span></span><br><span class="line"><span class="comment">//2、取出下一个元素，在已经排序的元素序列中从后向前扫描</span></span><br><span class="line"><span class="comment">//3、如果该元素（已排序）大于新元素，将该元素移到下一位置</span></span><br><span class="line"><span class="comment">//4、重复步骤3，直到找到已排序的元素小于或者等于新元素的位置</span></span><br><span class="line"><span class="comment">//5、将新元素插入到该位置中</span></span><br><span class="line"><span class="comment">//6、重复步骤2</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">insert_sort</span>(<span class="params"><span class="variable">$arr</span></span>) </span>&#123;</span><br><span class="line">	<span class="variable">$len</span>=<span class="title function_ invoke__">count</span>(<span class="variable">$arr</span>);</span><br><span class="line">	<span class="keyword">for</span> (<span class="variable">$i</span>=<span class="number">1</span>; <span class="variable">$i</span>&lt;<span class="variable">$len</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">		<span class="comment">//获得当前需要比较的元素值。</span></span><br><span class="line">		<span class="variable">$tmp</span> = <span class="variable">$arr</span>[<span class="variable">$i</span>];</span><br><span class="line">		<span class="comment">//内层循环控制 比较 并 插入</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="variable">$j</span>=<span class="variable">$i</span>-<span class="number">1</span>; <span class="variable">$j</span>&gt;=<span class="number">0</span>; <span class="variable">$j</span>--) &#123;</span><br><span class="line">			<span class="comment">//$arr[$i];//需要插入的元素; $arr[$j];//需要比较的元素</span></span><br><span class="line">			<span class="keyword">if</span>(<span class="variable">$tmp</span> &lt; <span class="variable">$arr</span>[<span class="variable">$j</span>]) &#123;</span><br><span class="line">				<span class="comment">//发现插入的元素要小，交换位置</span></span><br><span class="line">				<span class="comment">//将后边的元素与前面的元素互换</span></span><br><span class="line">				<span class="variable">$arr</span>[<span class="variable">$j</span>+<span class="number">1</span>] = <span class="variable">$arr</span>[<span class="variable">$j</span>];</span><br><span class="line">				<span class="comment">//将前面的数设置为 当前需要交换的数</span></span><br><span class="line">				<span class="variable">$arr</span>[<span class="variable">$j</span>] = <span class="variable">$tmp</span>;</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="comment">//如果碰到不需要移动的元素</span></span><br><span class="line">				<span class="comment">//由于是已经排序好是数组，则前面的就不需要再次比较了。</span></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//将这个元素 插入到已经排序好的序列内。</span></span><br><span class="line">	<span class="comment">//返回</span></span><br><span class="line">	<span class="keyword">return</span> <span class="variable">$arr</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//快速排序</span></span><br><span class="line"><span class="comment">//1、从数列中挑出一个元素，称为 “基准”（pivot），</span></span><br><span class="line"><span class="comment">//2、重新排序数列，所有元素比基准值小的摆放在基准前面，所有元素比基准值大的摆在基准的后面（相同的数可以到任一边）。在这个分区退出之后，该基准就处于数列的中间位置。这个称为分区（partition）操作。</span></span><br><span class="line"><span class="comment">//3、递归地（recursive）把小于基准值元素的子数列和大于基准值元素的子数列排序。</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">quick_sort</span>(<span class="params"><span class="variable">$arr</span></span>) </span>&#123;</span><br><span class="line">	<span class="comment">//判断参数是否是一个数组</span></span><br><span class="line">	<span class="keyword">if</span>(!<span class="title function_ invoke__">is_array</span>(<span class="variable">$arr</span>)) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">	<span class="comment">//递归出口:数组长度为1，直接返回数组</span></span><br><span class="line">	<span class="variable">$length</span> = <span class="title function_ invoke__">count</span>(<span class="variable">$arr</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="variable">$length</span>&lt;=<span class="number">1</span>) <span class="keyword">return</span> <span class="variable">$arr</span>;</span><br><span class="line">	<span class="comment">//数组元素有多个,则定义两个空数组</span></span><br><span class="line">	<span class="variable">$left</span> = <span class="variable">$right</span> = <span class="keyword">array</span>();</span><br><span class="line">	<span class="comment">//使用for循环进行遍历，把第一个元素当做比较的对象</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="variable">$i</span>=<span class="number">1</span>; <span class="variable">$i</span>&lt;<span class="variable">$length</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">		<span class="comment">//判断当前元素的大小</span></span><br><span class="line">		<span class="keyword">if</span>(<span class="variable">$arr</span>[<span class="variable">$i</span>]&lt;<span class="variable">$arr</span>[<span class="number">0</span>]) &#123;</span><br><span class="line">			<span class="variable">$left</span>[]=<span class="variable">$arr</span>[<span class="variable">$i</span>];</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="variable">$right</span>[]=<span class="variable">$arr</span>[<span class="variable">$i</span>];</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//递归调用</span></span><br><span class="line">	<span class="variable">$left</span>=<span class="title function_ invoke__">quick_sort</span>(<span class="variable">$left</span>);</span><br><span class="line">	<span class="variable">$right</span>=<span class="title function_ invoke__">quick_sort</span>(<span class="variable">$right</span>);</span><br><span class="line">	<span class="comment">//将所有的结果合并</span></span><br><span class="line">	<span class="keyword">return</span> <span class="title function_ invoke__">array_merge</span>(<span class="variable">$left</span>,<span class="keyword">array</span>(<span class="variable">$arr</span>[<span class="number">0</span>]),<span class="variable">$right</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>6：nginx 和 apache 有什么区别？</strong></p>
+<blockquote>
+<ol>
+<li><strong>apache 是同步多进程模型一个连接对应一个进程；nginx 是一步的多个连接对应一个进程。</strong></li>
+<li><strong>apache 处理动态有优势；nginx 并发性能比较好，CPU 占用内存低。</strong></li>
+<li><strong>apache rewrite 模块比 nginx 强大。</strong></li>
+</ol>
+</blockquote>
+<p><strong>7：PHP 常见的运行模式有哪些？</strong></p>
+<blockquote>
+<ol>
+<li><strong>CGI</strong></li>
+<li><strong>Fast-CGI</strong></li>
+<li><strong>cli</strong></li>
+<li><strong>apache 模块的 DLL</strong></li>
+</ol>
+</blockquote>
+<p><strong>8：PHP 运行模式原理是什么？</strong></p>
+<blockquote>
+<ol>
+<li><strong>CGI ：Common Gateway Interface（通用网关接口），他把网页和 WEB 服务器中的执行程序相连，从 HTML 接受过来的指令传递给服务器执行，在把服务器执行程序的结果返回给 HTML；CGI 跨平台性能极佳。<br>CGI 方式在遇到连接请求先创建 CGI 子进程，激活一个 CGI 进程，然后处理请求，处理结束后结束这个子进程。这就是 fork-and-execute 模式。所以有多少连接就有多少 CGI 子进程，子进程反复加载是 CGI 性能低下的主要原因。当请求用户数量非常多时，会大量挤占系统资源如：内存、CPU 时间等造成性能低下。</strong></li>
+<li><strong>FastCGI：是 CGI 的升级版，FastCGI 可以看成是一个常驻内存的 CGI ，他可以一直执行着，只要激活后，不会每次都要花费时间去 fork 一次。PHP 使用 PHP-FPM（FastCGI Process Manage）全称“PHP FastCGI 进程管理器”进行管理。<br>工作原理：<br>1：Web Server 启动时载入 FastCGI 进程管理器。<br>2：FastCGI 进程管理器自身初始化，启动多个 CGI 解释器（多个 php-cgi）并等待来自 Web Server 的连接。<br>3：当客户端请求到达 Web Server 时，FastCGI 进程管理器选择并连接到一个 CGI 解释器，WebServer 将 CGI 环境变量和标准输入发送到 FastCGI 子进程 php-cgi。<br>4：FastCGI 子进程处理完成后将标准输出和错误信息从同一连接返回 WebServer。当 FastCGI 子进程关闭连接时，请求便告知处理完成。FastCGI 进程接着等待并处理来自 FastCGI 继承管理器的下一个连接。当在 CGI 模式中，php-cgi 在此便退出。<br>CGI 每个 Web 请求 PHP 都必须重新解析 php.ini 、重新载入全部扩展并初始化全部数据结构。而使用 FastCGI ，所有操作只在进程启动时发生一次，一个额外好处，持续的数据库连接可以工作。</strong></li>
+<li><strong>CLI 是 PHP 命令行模式</strong></li>
+<li><strong>apache 模块 DLL：在模块化（DLL）中，PHP 是与 Web 服务器一同启动并运行（是 apache 在 CGI 基础上的一种扩展，加快 PHP 运行效率）</strong></li>
+</ol>
+</blockquote>
+<p><strong>9：写一个函数遍历文件夹下所有文件和文件夹。</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getDirInfo</span>(<span class="params"><span class="variable">$path</span></span>)</span>&#123;</span><br><span class="line">  <span class="variable">$handle</span> = <span class="title function_ invoke__">opendir</span>(<span class="variable">$path</span>);</span><br><span class="line">  <span class="keyword">while</span> ((<span class="variable">$content</span> = <span class="title function_ invoke__">readdir</span>(<span class="variable">$handle</span>))!==<span class="literal">false</span>) &#123;</span><br><span class="line">    <span class="variable">$newDir</span> = <span class="variable">$path</span>.DIRECTORY_SEPARATOR.<span class="variable">$content</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$content</span> == <span class="string">&#x27;..&#x27;</span> || <span class="variable">$content</span> == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">is_dir</span>(<span class="variable">$newDir</span>)) &#123;</span><br><span class="line">      <span class="keyword">echo</span> PHP_EOL.<span class="string">&#x27;目录&#x27;</span>.<span class="variable">$newDir</span>;</span><br><span class="line">      <span class="title function_ invoke__">getDirInfo</span>(<span class="variable">$newDir</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="keyword">echo</span> PHP_EOL.<span class="string">&#x27;文件&#x27;</span>.<span class="variable">$path</span>.<span class="variable">$content</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_ invoke__">getDirInfo</span>(<span class="string">&#x27;/Users/mac/project/learning/php&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<h1 id="PHP-8"><a href="#PHP-8" class="headerlink" title="PHP 8"></a>PHP 8</h1><h3 id="JIT"><a href="#JIT" class="headerlink" title="JIT"></a>JIT</h3><p><strong>1：JIT 是什么？</strong></p>
+<blockquote>
+<p>简介：Just In Time 是一种编译策略，将代码在运转时转换为依赖于体系结构的机器码，并即时执行。</p>
+</blockquote>
+<p><strong>2：JIT 有什么好处？</strong></p>
+<blockquote>
+<ol>
+<li>目前很难通过常规手段提升 php 性能，JIT 基本上是性能提升的唯一手段。</li>
+<li>JIT 带来的性能提升可以使 php 在 CPU 密集型发挥作用。</li>
+<li>可以使用 PHP 开发内置函数，而不用担心性能方面问题。</li>
+</ol>
+</blockquote>
+<h1 id="框架篇"><a href="#框架篇" class="headerlink" title="框架篇"></a>框架篇</h1><p>1：<strong>为什么使用 PHP 框架？</strong></p>
+<blockquote>
+<ol>
+<li>PHP 框架令开发更快。</li>
+<li>框架使开发人员能够轻易地扩展系统。</li>
+<li>代码的维护更容易。</li>
+<li>MVC 模式可以确保快速开发。</li>
+<li>框架更利于保护 WEB 的应用程序免受安全威胁。</li>
+</ol>
+</blockquote>
+<p>2：<strong>各种框架之间有什么区别？</strong></p>
+<blockquote>
+<ol>
+<li>symfony 是一套可重复使用的 PHP 组件，它允许开发者创建可扩展、高性能的应用程序。Laravel 基于 symfony 建立。<ul>
+<li>提供一个 LTS 版本</li>
+<li>带有负载功能</li>
+<li>是目前最稳定的框架</li>
+<li>是基于构件的框架，提供了丰富的模块化</li>
+<li>具有一个出色的社区，提供丰富的学习资源</li>
+</ul>
+</li>
+<li>Laravel 被称为是“网络工程师的 PHP 框架”，它提供了一个出色的社区并赢得“最流行框架”的称号。<ul>
+<li>为设计者提供支持包管理</li>
+<li>出色完成单元测试</li>
+<li>提供丰富的包，用于扩展框架功能</li>
+<li>具有一个出色的社区，提供丰富的学习资源</li>
+</ul>
+</li>
+<li>Yii 是一个安全，快速和高效的应用&#x2F;网站开发框架。Yii 是在 2008 年由薛强创建的。<ul>
+<li>自带 Ajax 支持</li>
+<li>十分适合用于开发实时应用程序，因为它的操作更快</li>
+<li>是高度可扩展的</li>
+<li>可准确无误地处理错误</li>
+<li>适合用来创建平静的 Web 服务</li>
+<li>具有一个出色的社区，提供丰富的学习资源</li>
+</ul>
+</li>
+</ol>
+</blockquote>
+<h1 id="Swoole-篇"><a href="#Swoole-篇" class="headerlink" title="Swoole 篇"></a>Swoole 篇</h1><p><strong>1：什么是 swoole ？</strong></p>
+<blockquote>
+<p><strong>答</strong>：面向生产环境的 PHP 异步网络通信引擎，Swoole 它是一个网络应用的开发工具，它支持 Http、TCP、UDP、WebSocket。</p>
+</blockquote>
+<p><strong>2：关于 phper 常用的全局变量（global）为什么在 onRequest 函数中不能使用？</strong></p>
+<blockquote>
+<p><strong>答：</strong>因为 swoole 是多线程编程，global 是不能在多个进程间共享的</p>
+</blockquote>
+<p>**什么是异步、什么是回调？</p>
+<p>**<br><strong>3：为什么 onReceive 收到的数据这么大？</strong></p>
+<blockquote>
+<p><strong>答：</strong>客户端发送的多次请求，服务端是可以一次性接收的。并不是客户端发送一次，服务端接收一次</p>
+</blockquote>
+<p><strong>4：swoole 有什么特色？</strong></p>
+<blockquote>
+<p><strong>答：</strong>网络通信 框架、异步、多线程。</p>
+</blockquote>
+<p><strong>5：那为什么要使用 Swoole？</strong></p>
+<blockquote>
+<ol>
+<li>常驻内存，避免重复加载带来的性能损耗，提升海量性能。</li>
+<li>协程异步，提高对 I&#x2F;O 密集型场景并发处理能力（如：微信开发、支付、登录等）。</li>
+<li>方便地开发 Http、WebSocket、TCP、UDP 等应用，可以与硬件通信。</li>
+<li>PHP 高性能微服务架构成为现实。</li>
+</ol>
+</blockquote>
+<p>**</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">walker</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/06/03/PHP%20%E9%9D%A2%E8%AF%95/">http://example.com/2022/06/03/PHP%20%E9%9D%A2%E8%AF%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">walker</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/11/18/PHP%20%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">PHP 性能优化</div></div></a></div><div class="next-post pull-right"><a href="/2022/05/16/Redis%20%E9%9D%A2%E8%AF%95%E9%A2%98/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Redis 面试题</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">walker</div><div class="author-info__description">学如逆水行舟不进则退</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/lvyasen" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:18530893662@163.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80"><span class="toc-number">1.</span> <span class="toc-text">基础</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#PHP-8"><span class="toc-number">2.</span> <span class="toc-text">PHP 8</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#JIT"><span class="toc-number">2.0.1.</span> <span class="toc-text">JIT</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E7%AF%87"><span class="toc-number">3.</span> <span class="toc-text">框架篇</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Swoole-%E7%AF%87"><span class="toc-number">4.</span> <span class="toc-text">Swoole 篇</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" title="常用解决方案">常用解决方案</a><time datetime="2023-01-02T09:32:58.000Z" title="发表于 2023-01-02 17:32:58">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/Go%20ORM/" title="Go ORM">Go ORM</a><time datetime="2023-01-02T05:10:25.000Z" title="发表于 2023-01-02 13:10:25">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E9%83%A8%E7%BD%B2/" title="Kubernetes 部署">Kubernetes 部署</a><time datetime="2022-12-31T06:27:06.000Z" title="发表于 2022-12-31 14:27:06">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E5%AE%89%E8%A3%85/" title="Kubernetes 安装">Kubernetes 安装</a><time datetime="2022-12-31T06:01:53.000Z" title="发表于 2022-12-31 14:01:53">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/" title="Kubernetes 简介">Kubernetes 简介</a><time datetime="2022-12-31T05:51:00.000Z" title="发表于 2022-12-31 13:51:00">2022-12-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By walker</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

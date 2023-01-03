@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Kubernetes 简介 | walker</title><meta name="author" content="walker"><meta name="copyright" content="walker"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="tags: []categories: [Kubernetes]cover: ‘’   中文官网 &gt; 快速上手教程 &amp; 配套课程  什么是 Kubernetes？ 它是一个为 容器化 应用提供集群部署和管理的开源工具，由 Google 开发。Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes 简介">
+<meta property="og:url" content="http://example.com/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/index.html">
+<meta property="og:site_name" content="walker">
+<meta property="og:description" content="tags: []categories: [Kubernetes]cover: ‘’   中文官网 &gt; 快速上手教程 &amp; 配套课程  什么是 Kubernetes？ 它是一个为 容器化 应用提供集群部署和管理的开源工具，由 Google 开发。Kubernetes 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-12-31T05:51:00.000Z">
+<meta property="article:modified_time" content="2023-01-03T00:52:11.717Z">
+<meta property="article:author" content="walker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'mediumZoom',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Kubernetes 简介',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-03 08:52:11'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">walker</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Kubernetes 简介</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-31T05:51:00.000Z" title="发表于 2022-12-31 13:51:00">2022-12-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-03T00:52:11.717Z" title="更新于 2023-01-03 08:52:11">2023-01-03</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Kubernetes 简介"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>tags: []<br>categories: [Kubernetes]<br>cover: ‘’</p>
+<hr>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://kubernetes.io/zh-cn/">中文官网</a> &gt; <a target="_blank" rel="noopener" href="https://k8s.easydoc.net/docs/dRiQjyTY/28366845/6GiNOzyZ/9EX8Cp45">快速上手教程</a> &amp; <a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Tg411P7EB?p=2&vd_source=562b0a9746c823abc601464476e85cdf">配套课程</a></p>
+</blockquote>
+<h2 id="什么是-Kubernetes？"><a href="#什么是-Kubernetes？" class="headerlink" title="什么是 Kubernetes？"></a>什么是 Kubernetes？</h2><blockquote>
+<p>它是一个为 <strong>容器化</strong> 应用提供集群部署和管理的开源工具，由 Google 开发。<br><strong>Kubernetes</strong> 这个名字源于希腊语，意为“舵手”或“飞行员”。k8s 这个缩写是因为 k 和 s 之间有八个字符的关系。 Google 在 2014 年开源了 Kubernetes 项目。</p>
+</blockquote>
+<h3 id="主要特性"><a href="#主要特性" class="headerlink" title="主要特性"></a>主要特性</h3><ul>
+<li>高可用，不宕机，自动灾难恢复</li>
+<li>灰度更新，不影响业务正常运转</li>
+<li>一键回滚到历史版本</li>
+<li>方便的伸缩扩展（应用伸缩，机器加减）、提供负载均衡</li>
+<li>有一个完善的生态</li>
+</ul>
+<h2 id="不同应用的部署方式"><a href="#不同应用的部署方式" class="headerlink" title="不同应用的部署方式"></a>不同应用的部署方式</h2><h3 id="传统方式部署"><a href="#传统方式部署" class="headerlink" title="传统方式部署"></a>传统方式部署</h3><blockquote>
+<p>应用直接在物理机上部署，机器资源分配不好控制，出现 Bug 时，可能机器的大部分资源被某个应用占用，导致其他应用无法正常运行，无法做到应用隔离。</p>
+</blockquote>
+<h3 id="虚拟机部署"><a href="#虚拟机部署" class="headerlink" title="虚拟机部署"></a>虚拟机部署</h3><blockquote>
+<p>在单个物理机上运行多个虚拟机，每个虚拟机都是完整独立的系统，性能损耗大。</p>
+</blockquote>
+<h3 id="容器部署"><a href="#容器部署" class="headerlink" title="容器部署"></a>容器部署</h3><blockquote>
+<p>所有容器共享主机的系统，轻量级的虚拟机，性能损耗小，资源隔离，CPU 和内存可按需分配。</p>
+</blockquote>
+<h2 id="什么时候需要-Kubernetes？"><a href="#什么时候需要-Kubernetes？" class="headerlink" title="什么时候需要 Kubernetes？"></a>什么时候需要 Kubernetes？</h2><blockquote>
+<p>当你的应用只是跑在一台机器，直接一个 docker + docker-compose 就够了，方便轻松；<br>当你的应用需要跑在 3，4 台机器上，你依旧可以每台机器单独配置运行环境 + 负载均衡器；<br>当你应用访问数不断增加，机器逐渐增加到十几台、上百台、上千台时，每次加机器、软件更新、版本回滚，都会变得非常麻烦、痛不欲生，再也不能好好的摸鱼了，人生浪费在那些没技术含量的重复性工作上。<br>这时候，Kubernetes 就可以一展身手了，让你轻松管理百万千万台机器的集群。“谈笑间，樯橹灰飞烟灭”，享受着一手掌控所有，年薪百万指日可待。<br>Kubernetes 可以为你提供集中式的管理集群机器和应用，加机器、版本升级、版本回滚，那都是一个命令就搞定的事，不停机的灰度更新，确保高可用、高性能、高扩展。</p>
+</blockquote>
+<h2 id="Kubernetes-集群架构"><a href="#Kubernetes-集群架构" class="headerlink" title="Kubernetes 集群架构"></a>Kubernetes 集群架构</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.nlark.com/yuque/0/2022/png/25799318/1672466085015-45f135db-43c3-4dcd-9a54-dc320a6bad5d.png#averageHue=%23f7f7f7&clientId=u1a264b23-3005-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=229&id=u5ce6bf04&margin=%5Bobject%20Object%5D&name=image.png&originHeight=457&originWidth=514&originalType=binary%E2%88%B6=1&rotation=0&showTitle=false&size=34801&status=done&style=none&taskId=uef87c07f-c155-4e70-8cb9-3c8044d2443&title=&width=257" alt="image.png"></p>
+<h3 id="master"><a href="#master" class="headerlink" title="master"></a>master</h3><blockquote>
+<p>主节点，控制平台，不需要很高性能，不跑任务，通常一个就行了，也可以开多个主节点来提高集群可用度。</p>
+</blockquote>
+<h3 id="worker"><a href="#worker" class="headerlink" title="worker"></a>worker</h3><blockquote>
+<p>工作节点，可以是虚拟机或物理计算机，任务都在这里跑，机器性能需要好点；通常都有很多个，可以不断加机器扩大集群；每个工作节点由主节点管理。</p>
+</blockquote>
+<h3 id="pod"><a href="#pod" class="headerlink" title="pod"></a>pod</h3><blockquote>
+<p>豆荚，K8S 调度、管理的最小单位，一个 Pod 可以包含一个或多个容器，每个 Pod 有自己的虚拟 IP。一个工作节点可以有多个 pod，主节点会考量负载自动调度 pod 到哪个节点运行。</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.nlark.com/yuque/0/2022/png/25799318/1672466155818-a9030ff6-2b82-45ea-af25-a0ee164a0611.png#averageHue=%23f5f5f5&clientId=u1a264b23-3005-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=305&id=ub7fc771a&margin=%5Bobject%20Object%5D&name=image.png&originHeight=610&originWidth=856&originalType=binary%E2%88%B6=1&rotation=0&showTitle=false&size=511147&status=done&style=none&taskId=u149c7900-a410-4151-9d9d-b15682fa85d&title=&width=428" alt="image.png"></p>
+<h3 id="Kubernetes-组件"><a href="#Kubernetes-组件" class="headerlink" title="Kubernetes 组件"></a>Kubernetes 组件</h3><blockquote>
+<p>kube-apiserver API 服务器，公开了 Kubernetes API<br>etcd 键值数据库，可以作为保存 Kubernetes 所有集群数据的后台数据库<br>kube-scheduler 调度 Pod 到哪个节点运行<br>kube-controller 集群控制器<br>cloud-controller 与云服务商交互</p>
+</blockquote>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.nlark.com/yuque/0/2022/png/25799318/1672466220618-fc580654-0401-4b31-9975-fb1c9b90d625.png#averageHue=%23dcdcdc&clientId=u1a264b23-3005-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=226&id=ue1ccf45b&margin=%5Bobject%20Object%5D&name=image.png&originHeight=452&originWidth=944&originalType=binary%E2%88%B6=1&rotation=0&showTitle=false&size=71375&status=done&style=none&taskId=u194f3a3f-4cf7-4c82-8068-af565804cd4&title=&width=472" alt="image.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">walker</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/">http://example.com/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">walker</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/12/31/Kubernetes%20%E5%AE%89%E8%A3%85/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Kubernetes 安装</div></div></a></div><div class="next-post pull-right"><a href="/2022/12/31/Go%20Protobuf/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Go Protobuf</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">walker</div><div class="author-info__description">学如逆水行舟不进则退</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/lvyasen" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:18530893662@163.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Kubernetes%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">什么是 Kubernetes？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E7%89%B9%E6%80%A7"><span class="toc-number">1.1.</span> <span class="toc-text">主要特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E5%BA%94%E7%94%A8%E7%9A%84%E9%83%A8%E7%BD%B2%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">不同应用的部署方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%E9%83%A8%E7%BD%B2"><span class="toc-number">2.1.</span> <span class="toc-text">传统方式部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E9%83%A8%E7%BD%B2"><span class="toc-number">2.2.</span> <span class="toc-text">虚拟机部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%B9%E5%99%A8%E9%83%A8%E7%BD%B2"><span class="toc-number">2.3.</span> <span class="toc-text">容器部署</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E9%9C%80%E8%A6%81-Kubernetes%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">什么时候需要 Kubernetes？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Kubernetes-%E9%9B%86%E7%BE%A4%E6%9E%B6%E6%9E%84"><span class="toc-number">4.</span> <span class="toc-text">Kubernetes 集群架构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#master"><span class="toc-number">4.1.</span> <span class="toc-text">master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#worker"><span class="toc-number">4.2.</span> <span class="toc-text">worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pod"><span class="toc-number">4.3.</span> <span class="toc-text">pod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Kubernetes-%E7%BB%84%E4%BB%B6"><span class="toc-number">4.4.</span> <span class="toc-text">Kubernetes 组件</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" title="常用解决方案">常用解决方案</a><time datetime="2023-01-02T09:32:58.000Z" title="发表于 2023-01-02 17:32:58">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/Go%20ORM/" title="Go ORM">Go ORM</a><time datetime="2023-01-02T05:10:25.000Z" title="发表于 2023-01-02 13:10:25">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E9%83%A8%E7%BD%B2/" title="Kubernetes 部署">Kubernetes 部署</a><time datetime="2022-12-31T06:27:06.000Z" title="发表于 2022-12-31 14:27:06">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E5%AE%89%E8%A3%85/" title="Kubernetes 安装">Kubernetes 安装</a><time datetime="2022-12-31T06:01:53.000Z" title="发表于 2022-12-31 14:01:53">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/" title="Kubernetes 简介">Kubernetes 简介</a><time datetime="2022-12-31T05:51:00.000Z" title="发表于 2022-12-31 13:51:00">2022-12-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By walker</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

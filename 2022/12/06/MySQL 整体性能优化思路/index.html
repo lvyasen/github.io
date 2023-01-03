@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>MySQL 整体性能优化思路 | walker</title><meta name="author" content="walker"><meta name="copyright" content="walker"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="主要从以下几点进行优化：  存储方式 数据检索 索引 系统配置  存储方式选择优化的数据类型整数类型 TINYINT 8 SMALLINT 16 MEDIUMINT 24 INT 32 BIGINT 64 整数类型有可选的 UNSIGNED 属性，表示不允许负值，这大致可以使正数的上限提高一倍    实数类型 实数是带有小数部分的数字。然而，它们不仅适用于带小数的数字，也可以使用 DECIMAL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 整体性能优化思路">
+<meta property="og:url" content="http://example.com/2022/12/06/MySQL%20%E6%95%B4%E4%BD%93%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%80%9D%E8%B7%AF/index.html">
+<meta property="og:site_name" content="walker">
+<meta property="og:description" content="主要从以下几点进行优化：  存储方式 数据检索 索引 系统配置  存储方式选择优化的数据类型整数类型 TINYINT 8 SMALLINT 16 MEDIUMINT 24 INT 32 BIGINT 64 整数类型有可选的 UNSIGNED 属性，表示不允许负值，这大致可以使正数的上限提高一倍    实数类型 实数是带有小数部分的数字。然而，它们不仅适用于带小数的数字，也可以使用 DECIMAL">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-12-06T00:54:40.000Z">
+<meta property="article:modified_time" content="2023-01-03T00:52:11.710Z">
+<meta property="article:author" content="walker">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/12/06/MySQL%20%E6%95%B4%E4%BD%93%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%80%9D%E8%B7%AF/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'mediumZoom',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'MySQL 整体性能优化思路',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-03 08:52:11'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">walker</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">MySQL 整体性能优化思路</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-12-06T00:54:40.000Z" title="发表于 2022-12-06 08:54:40">2022-12-06</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-03T00:52:11.710Z" title="更新于 2023-01-03 08:52:11">2023-01-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/mysql/">mysql</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="MySQL 整体性能优化思路"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>主要从以下几点进行优化：</p>
+<ol>
+<li>存储方式</li>
+<li>数据检索</li>
+<li>索引</li>
+<li>系统配置</li>
+</ol>
+<h2 id="存储方式"><a href="#存储方式" class="headerlink" title="存储方式"></a>存储方式</h2><h3 id="选择优化的数据类型"><a href="#选择优化的数据类型" class="headerlink" title="选择优化的数据类型"></a>选择优化的数据类型</h3><h4 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h4><ol>
+<li>TINYINT 8</li>
+<li>SMALLINT 16</li>
+<li>MEDIUMINT 24</li>
+<li>INT 32</li>
+<li>BIGINT 64<blockquote>
+<p>整数类型有可选的 UNSIGNED 属性，表示不允许负值，这大致可以使正数的上限提高一倍</p>
+</blockquote>
+</li>
+</ol>
+<h4 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h4><blockquote>
+<p>实数是带有小数部分的数字。然而，它们不仅适用于带小数的数字，也可以使用 DECIMAL 存储比 BIGINT 还大的整数。<br>FLOAT 和 DOUBLE 类型支持使用标准的浮点运算进行近似计算。<br>FLOAT 浮点类型通常比 DECIMAL 使用更少的空间来存储相同范围的值.<br>MySQL 会使用 DOUBLE 进行浮点类型的内部计算。<br>由于额外的空间需求和计算成本，应该尽量只在对小数进行精确计算时才使用 DECIMAL</p>
+</blockquote>
+<h4 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h4><blockquote>
+<p>VARCHAR 和 CHAR 是两种最主要的字符串类型</p>
+</blockquote>
+<p>VARCHAR 和 CHAR 值通常是如何存储在磁盘上的?<br><strong><em>VARCHAR:</em></strong></p>
+<blockquote>
+<p>VARCHAR 用于存储可变长度的字符串，是最常见的字符串数据类型。它比固定长度的类型更节省空间，因为它仅使用必要的空间（即，更少的空间用于存储更短的值）。<br>VARCHAR 需要额外使用 1 或 2 字节记录字符串的长度：如果列的最大长度小于或等于 255 字节，则只使用 1 字节表示，否则使用 2 字节。假设采用 latin1 字符集，一个 VARCHAR（10）的列需要 11 字节的存储空间。VARCHAR（1000）的列则需要 1002 个字节，因为需要 2 字节存储长度信息。<br>VARCHAR 节省了存储空间，所以对性能也有帮助。但是，由于行是可变长度的，在更新时可能会增长，这会导致额外的工作。如果行的增长使得原位置无法容纳更多内容，则处理行为取决于所使用的存储引擎。例如，InnoDB 可能需要分割页面来容纳行。其他一些存储引擎也许不在原数据位置更新数据</p>
+</blockquote>
+<p><strong>CHAR:</strong></p>
+<blockquote>
+<p>HAR 是固定长度的：MySQL 总是为定义的字符串长度分配足够的空间。当存储 CHAR 值时，MySQL 删除所有尾随空格。如果需要进行比较，值会用空格填充。<br>CHAR 适合存储非常短的字符串，或者适用于所有值的长度都几乎相同的情况。例如，对于用户密码的 MD5 值，CHAR 是一个很好的选择，它们的长度总是相同的。对于经常修改的数据，CHAR 也比 VARCHAR 更好，因为固定长度的行不容易出现碎片。对于非常短的列，CHAR 也比 VARCHAR 更高效；设计为只保存 Y 和 N 的值的 CHAR（1）在单字节字符集中只使用 1 字节，但 VARCHAR（1）需要 2 字节，因为还有一个记录长度的额外字节。</p>
+</blockquote>
+<blockquote>
+<p>使用 VARCHAR（5）和 VARCHAR（200）存储’hello’的空间开销是一样的。那么使用更短的列有什么优势吗？<br>事实证明有很大的优势。较大的列会使用更多的内存，因为 MySQL 通常会在内部分配固定大小的内存块来保存值。这对于使用内存临时表的排序或操作来说尤其糟糕。在利用磁盘临时表进行文件排序时也同样糟糕。<br>最好的策略是只分配真正需要的空间</p>
+</blockquote>
+<p><strong>BLOB（二进制）和 TEXT（字符串）类型:</strong></p>
+<blockquote>
+<p>BLOB 和 TEXT 都是为存储很大的数据而设计的字符串数据类型，分别采用二进制和字符方式存储<br>与其他数据类型不同，MySQL 把每个 BLOB 和 TEXT 值当作一个具有自己标识的对象来处理。存储引擎通常会专门存储它们。当 BLOB 和 TEXT 值太大时，InnoDB 会使用独立的“外部”存储区域，此时每个值在行内需要 1 ～ 4 字节的存储空间，然后在外部存储区域需要足够的空间来存储实际的值。<br>BLOB 和 TEXT 家族之间的唯一区别是，BLOB 类型存储的是二进制数据，没有排序规则或字符集，但 TEXT 类型有字符集和排序规则。<br>MySQL 不能将 BLOB 和 TEXT 数据类型的完整字符串放入索引，也不能使用索引进行排序。</p>
+</blockquote>
+<h4 id="时期设时间类型"><a href="#时期设时间类型" class="headerlink" title="时期设时间类型"></a>时期设时间类型</h4><blockquote>
+<p>MySQL 可以存储的最小时间粒度是微秒。</p>
+</blockquote>
+<p><strong>DATETIME</strong></p>
+<blockquote>
+<p>这种类型可以保存大范围的数值，从 1000 年到 9999 年，精度为 1 微秒。它以 YYYYMMDDHHMMSS 格式存储压缩成整数的日期和时间，且与时区无关。这需要 8 字节的存储空间。<br>默认情况下，MySQL 以可排序、无歧义的格式显示 DATETIME 值，例如，2008-01-16 22：37：08。这是 ANSI 表示日期和时间的标准方式</p>
+</blockquote>
+<p><strong>TIMESTAMP</strong></p>
+<blockquote>
+<p>顾名思义，TIMESTAMP 类型存储自 1970 年 1 月 1 日格林尼治标准时间（GMT）午夜以来经过的秒数——与 UNIX 时间戳相同。TIMESTAMP 只使用 4 字节的存储空间，所以它的范围比 DATETIME 小得多：只能表示从 1970 年到 2038 年 1 月 19 日。MySQL 提供 FROM_UNIXTIME()函数来将 UNIX 时间戳转换为日期，并提供了 UNIX_TIMESTAMP()函数将日期转换为 UNIX 时间戳。<br>时间戳显示的值依赖于时区。MySQL 服务器、操作系统和客户端连接都有时区设置。<br>因此，存储值 0 的 TIMESTAMP 在美国东部标准时间（EST）中显示为 1969-12-31 19：00：00，与格林尼治标准时间（GMT）差 5 小时。有必要强调一下这个区别：如果存储或访问多个时区的数据，TIMESTAMP 和 DATETIME 的行为将很不一样。前者保留与所使用时区相关的值，而后者保留日期和时间的文本表示。<br>TIMESTAMP 还有 DATETIME 没有的特殊属性。默认情况下，当插入一行记录时没有指定第一个 TIMESTAMP 列的值，MySQL 会将该列的值设置为当前时间。当更新一行记录时没有指定第一个 TIMESTAMP 列的值，MySQL 默认也会将该列的值更新为当前时间。可以为任何 TIMESTAMP 列配置插入和更新行为。最后，TIMESTAMP 列在默认情况下为 NOT NULL，这也和其他的数据类型不一样。</p>
+</blockquote>
+<p><strong>为何将日期和时间存储为整数？</strong></p>
+<blockquote>
+<p>DATETIME 和 TIMESTAMP 都迫使你处理服务器和客户端上的时区，虽然 TIMESTAMP 比 DATETIME 更节省空间（4 字节与 8 字节的区别，忽略分数秒支持），但它也会遇到 2038 年的问题。<br>最终，存储日期和时间归结为以下几件事：<br>● 需要支持前后多大范围的日期和时间？<br>● 存储空间对这些数据有多重要？<br>● 需要支持分数秒吗？<br>● 在 MySQL 中处理日期、时间和时区，还是在代码中处理？<br>通过将日期和时间存储为 UNIX 纪元（即自 1970 年 1 月 1 日以来的秒数），以协调世界时（UTC）的形式，可避免 MySQL 处理的复杂性，这一做法越来越流行。使用带符号的 32 位 INT，可以表达直到 2038 年的时间。使用无符号的 32 位 INT，可以表达直到 2106 年的时间。如果使用 64 位，还可以超出这些范围。<br>就像关于操作系统、编辑器和标签与空间的流行讨论一样，如何存储这组特定的数据可能更多的是一种观点，而不是最佳实践。需要考虑的是，这对于你的用例来说是否可行。</p>
+</blockquote>
+<h4 id="位压缩类型"><a href="#位压缩类型" class="headerlink" title="位压缩类型"></a>位压缩类型</h4><blockquote>
+<p>MySQL 有几种使用值中的单个位来紧凑地存储数据的类型。所有这些位压缩类型，不管底层存储和处理方式如何，从技术上来说都是字符串类型</p>
+</blockquote>
+<p><strong>BIT：</strong></p>
+<blockquote>
+<p>可以使用 BIT 列存储一个或多个 true&#x2F;false 值。BIT（1）定义一个包含 1 位的字段，BIT（2）存储 2 位的字段，依此类推；BIT 列的最大长度为 64 位。InnoDB 将每一列存储为足够容纳这些位的最小整数类型，所以使用 BIT 列不会节省任何存储空间。<br>MySQL 在处理时会将 BIT 视为字符串类型，而不是数字类型。当检索 BIT（1）的值时，结果是一个包含二进制值 0 或 1 的字符串，而不是 ASCII 码的“0”或“1”。但是，如果在数字上下文中检索该值，则会将 BIT 字符串转换为数字。如果需要将结果与另外的值进行比较，一定要记得这一点。例如，如果将值 b’00111001’（二进制数相当于 57）存储到 BIT（8）列中并检索它，则将得到包含字符码为 57 的字符串。这恰好是“9”的 ASCII 字符代码。但在数字上下文场景中，得到的将会是数字 57<br>这可能会让人非常困惑，因此我们建议谨慎使用 BIT 类型。对于大多数应用来说，最好避免使用这种类型。<br>某个系统需要保存对用户发送短信的状态,有 10 几种不同类型的短信,每种都要标记发过没有，这时候用 bit 类型就很方便。</p>
+</blockquote>
+<p><strong>SET</strong></p>
+<blockquote>
+<p>如果需要存储多个 true&#x2F;false 值，可以考虑使用 MySQL 原生的 SET 数据类型，可以将多列组合成一列，这在 MySQL 内部是以一组打包的位的集合来表示的。这样可以更有效地利用存储空间，MySQL 具有 FIND_IN_SET()和 FIELD()等函数，使其易于在查询中使用</p>
+</blockquote>
+<h4 id="JSON-数据类型"><a href="#JSON-数据类型" class="headerlink" title="JSON 数据类型"></a>JSON 数据类型</h4><blockquote>
+<p>使用 JSON 作为系统之间交换数据的格式正变得越来越普遍。MySQL 有原生的 JSON 数据类型，可以方便地直接在表中的 JSON 结构部分进行操作。纯粹主义者可能会认为，在数据库中存储原始 JSON 是一种反范式，因为理想情况下，schema 应该是 JSON 中具体字段的表示。新手在查看 JSON 数据类型时，可能会发现这是避免创建和管理独立字段的捷径。哪种方法更好在很大程度上是主观的，但我们将客观地展示一个使用示例，并比较查询速度和数据大小。<br>我们的样本数据是由 NASA 提供的 202 颗近地小行星和彗星的发现清单（参见链接 24）。测试的版本是 MySQL 8.0.22，运行在一个 4 核、16GB 内存的虚拟机上。数据示例如下：</p>
+</blockquote>
+<h4 id="选择标识符"><a href="#选择标识符" class="headerlink" title="选择标识符"></a>选择标识符</h4><p>一般来说，标识符是引用行及通常使其唯一的方式。例如，如果你有一个关于用户的表，可能希望为每个用户分配一个数字 ID 或唯一的用户名。此字段可能是主键中的部分或全部。<br>为标识符列选择合适的数据类型非常重要。与其他列相比，更有可能将标识符列与其他值（例如，在联接中）进行比较，并使用它们进行查找。标识符列也可能在其他表中作为外键，因此为标识符列选择数据类型时，应该与联接表中的对应列保持一致。（正如我们在本章前面演示的，在关联表中使用相同的数据类型是一个好主意，因为这些列很可能在联接中使用。）<br>在为标识符列选择类型时，不仅需要考虑存储类型，还需要考虑 MySQL 如何对该类型执行计算和比较。例如，MySQL 在内部将 ENUM 和 SET 类型存储为整数，但在字符串上下文中进行比较时，会将它们转换为字符串。<br>选择类型后，要确保在所有相关表中使用相同的类型。类型应该完全匹配，包括 UNSIGNED 等属性。混合不同的数据类型可能导致性能问题，即使没有性能影响，在进行比较操作时，隐式类型转换也可能会产生难以发现的错误。甚至在很久以后，当你忘记正在比较不同类型的数据时，这些问题可能会突然出现。<br>在可以满足值的范围的需求，并且预留未来增长空间的前提下，应该选择最小的数据类型。例如，如果有一个 state_id 列存储美国各州的名字，则不需要数千或数百万个值，因此不要使用 INT，TINYINT 就足够了，它比 INT 少 3 字节。如果在其他表中使用此值作为外键，3 字节可能会产生很大的性能差异。这里有一些小建议。</p>
+<p>整数类型<br>整数通常是标识符的最佳选择，因为它们速度快，并且可以自动递增。AUTO_INCREMENT 是一个列属性，可以为新的行自动生成一个整数类型的值。例如，计费系统可能需要为每个客户生成新发票，使用 AUTO_INCREMENT 意味着生成的第一张发票是 1，第二张是 2，依此类推。请注意，应该确保选择适合预期数据增长的整数大小，与整数意外耗尽有关的系统停机事故可不止发生一次。<br>ENUM 和 SET 类型<br>对于标识符来说，ENUM 和 SET 类型通常是糟糕的选择，尽管对某些只包含固定状态或者类型的静态“定义表”来说可能是没有问题的。ENUM 和 SET 列适用于保存订单状态或产品类型等信息。<br>举个例子，如果使用 ENUM 字段来定义产品类型，可能会设计一张以这个 ENUM 字段为主键的查找表。（可以在查找表中添加描述性文本的列，以生成术语表，或者在网站上的下拉菜单中提供有意义的标签。）在这种情况下，使用 ENUM 类型作为标识符是可行的，但是大部分情况下都要避免这么做。<br>字符串类型<br>如果可能，应避免使用字符串类型作为标识符的数据类型，因为它们很消耗空间，而且通常比整数类型慢。<br>对于完全“随机”的字符串要非常小心，如 MD5()、SHA1()或 UUID()生成的字符串。这些函数生成的新值会任意分布在很大的空间内，这会减慢 INSERT 和某些类型的 SELECT 查询的速度：<br>● 因为插入的值会写到索引的随机位置，所以会使得 INSERT 查询变慢。这会导致页分裂、磁盘随机访问，以及对于聚簇存储引擎产生聚簇索引碎片。<br>● SELECT 查询也会变慢，因为逻辑上相邻的行会广泛分布在磁盘和内存中。<br>● 对于所有类型的查询，随机值都会导致缓存的性能低下，因为它们会破坏引用的局部性，而这正是缓存的工作原理。如果整个数据集都是“热的”，那么将任何特定部分的数据缓存到内存中都没有任何好处，而且如果工作集比内存大，缓存就会出现大量刷新和不命中。<br>如果存储通用唯一标识符（UUID）值，则应该删除破折号，或者更好的做法是，使用 UNHEX()函数将 UUID 值转换为 16 字节的数字，并将其存储在一个 BINARY（16）列中。可以使用 HEX()函数以十六进制格式检索值。</p>
+<h4 id="特殊类型"><a href="#特殊类型" class="headerlink" title="特殊类型"></a>特殊类型</h4><blockquote>
+<p>IPv4 地址就是一个很好的例子。人们通常使用 VARCHAR（15）列来存储 IP 地址。然而，它们实际上是 32 位无符号整数，而不是字符串。用小数点将地址分成四段的表示方法只是为了让人们阅读容易，所以应该将 I P 地址存储为无符号整数。MySQL 提供了 INET_ATON()和 INET_NTOA()函数来在这两种表示形式之间进行转换。使用的空间从 VARCHAR（15）的约 16 字节缩减到无符号 32 位整数的 4 字节。如果你担心数据库的可读性，不想继续使用函数查看行数据，请记住 MySQL 有视图，可以使用视图来简化数据查看的复杂性</p>
+</blockquote>
+<h3 id="schema-设计陷阱"><a href="#schema-设计陷阱" class="headerlink" title="schema 设计陷阱"></a>schema 设计陷阱</h3><blockquote>
+<p>尽管设计原则有好有坏，但 MySQL 的实现方式会带来一些问题，这意味着你也可能会犯 MySQL 特有的错误。本节讨论我们在 MySQL schema 设计中观察到的问题。它可能会帮助你避免这些错误，并让你选择更适合 MySQL 具体实现的替代方案</p>
+</blockquote>
+<h4 id="太多的连接"><a href="#太多的连接" class="headerlink" title="太多的连接"></a>太多的连接</h4><blockquote>
+<p>所谓的实体属性值（entity attribute value，EAV）设计模式是一种被普遍认为糟糕的设计模式的典型案例，尤其是在 MySQL 中效果不佳。MySQL 限制每个联接有 61 个表，而 E AV 模式设计的数据库需要许多自联接。我们已经看到不少 E AV 模式设计的数据库最终超过了这个限制。然而，即使联接数远小于 61，规划和优化查询的成本对 MySQL 来说也会成为问题。一个粗略的经验法则是，如果需要以高并发性快速执行查询，那么每个查询最好少于十几个的表</p>
+</blockquote>
+<h4 id="全能枚举"><a href="#全能枚举" class="headerlink" title="全能枚举"></a>全能枚举</h4><blockquote>
+<p>要小心过度使用 ENUM。下面是我们看到的一个例子：<br>CREATE TABLE … (<br>country enum(‘,’0<br>‘,’1’,’2’,…,’31’)<br>schema 中大量地散布着这种模式。在任何具有枚举值类型的数据库中，这可能是一个值得商榷的设计决策，因为它实际上应该是一个整数，会被设计为“字典”或“查找”表的外健</p>
+</blockquote>
+<h4 id="变相枚举"><a href="#变相枚举" class="headerlink" title="变相枚举"></a>变相枚举</h4><blockquote>
+<p>M 列允许在列中保存一组已定义值中的单个值。SET 列则允许在列中保存一组已定义值中的一个或多个值。有时很容易混淆。这里有一个例子：<br>CREATE TABLE …(<br>is_default set(‘<br>Y’,’N’) NOT NULL default ‘N’<br>如果这里真和假两种情况不会同时出现，那么毫无疑问应该使用 ENUM 列而不是 SET 列。</p>
+</blockquote>
+<h4 id="NULL-不是虚拟值"><a href="#NULL-不是虚拟值" class="headerlink" title="NULL 不是虚拟值"></a>NULL 不是虚拟值</h4><blockquote>
+<p>我们之前说过避免使用 NULL 的好处，并且建议尽可能考虑其他选择。即使需要在表中存储事实上的“空值”，也可能不需要使用 NULL。也许可以使用 0、特殊值或空字符串作为代替。<br>但是遵循这个原则也不要走极端。当需要表示未知值时，不要太害怕使用 NULL。在某些情况下，使用 NULL 比使用某个虚拟常数更好。从受约束类型的域中选择一个值，例如使用-1 表示一个未知的整数，可能会使代码复杂化，容易引入 bug，并通常会把事情搞得一团糟。处理 NULL 并不容易，但通常比其他替代方案更好。</p>
+</blockquote>
+<h3 id="mysql-不用-null-的理由"><a href="#mysql-不用-null-的理由" class="headerlink" title="mysql 不用 null 的理由"></a>mysql 不用 null 的理由</h3><p>（1）所有使用 NULL 值的情况，都可以通过一个有意义的值的表示，这样有利于代码的可读性和可维护性，并能从约束上增强业务数据的规范性。<br>（2）NULL 值到非 NULL 的更新无法做到原地更新，更容易发生索引分裂，从而影响性能。(null -&gt; not null 性能提升很小，除非确定它带来了问题，否则不要当成优先的优化措施)<br>（3）NULL 值在 timestamp 类型下容易出问题，特别是没有启用参数 explicit_defaults_for_timestamp<br>（4）NOT IN、!&#x3D; 等负向条件查询在有 NULL 值的情况下返回永远为空结果，查询容易出错</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">walker</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/12/06/MySQL%20%E6%95%B4%E4%BD%93%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%80%9D%E8%B7%AF/">http://example.com/2022/12/06/MySQL%20%E6%95%B4%E4%BD%93%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%80%9D%E8%B7%AF/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">walker</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/mysql/">mysql</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/12/14/MySQL%20InnoDB/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">MySQL InnoDB</div></div></a></div><div class="next-post pull-right"><a href="/2022/12/06/MySQL%20%E7%B4%A2%E5%BC%95%E4%BC%98%E5%8C%96/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MySQL 索引优化</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/12/06/MySQL%20CPU%20%E9%A3%99%E9%AB%98/" title="MySQL CPU 飙高"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-12-06</div><div class="title">MySQL CPU 飙高</div></div></a></div><div><a href="/2022/11/23/MySQL%20Performance%20Schema%EF%BC%88%E6%94%B6%E9%9B%86%E6%95%B0%E6%8D%AE%E5%BA%93%E6%80%A7%E8%83%BD%E5%8F%82%E6%95%B0%EF%BC%89/" title="MySQL Performance Schema（收集数据库性能参数）"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-23</div><div class="title">MySQL Performance Schema（收集数据库性能参数）</div></div></a></div><div><a href="/2022/11/29/MySQL%20%E4%B8%BB%E4%BB%8E%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98/" title="MySQL 主从同步问题"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-29</div><div class="title">MySQL 主从同步问题</div></div></a></div><div><a href="/2022/11/19/MySQL%20%E4%BC%98%E5%8C%96/" title="MySQL 优化"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-19</div><div class="title">MySQL 优化</div></div></a></div><div><a href="/2022/11/23/MySQL%20%E4%BC%98%E5%8C%96%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" title="MySQL 优化数据类型"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-23</div><div class="title">MySQL 优化数据类型</div></div></a></div><div><a href="/2022/11/29/MySQL%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%92%8C%E7%A1%AC%E4%BB%B6%E4%BC%98%E5%8C%96/" title="MySQL 操作系统和硬件优化"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-11-29</div><div class="title">MySQL 操作系统和硬件优化</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">walker</div><div class="author-info__description">学如逆水行舟不进则退</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/lvyasen" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:18530893662@163.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">1.</span> <span class="toc-text">存储方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E4%BC%98%E5%8C%96%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">选择优化的数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B4%E6%95%B0%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.1.</span> <span class="toc-text">整数类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E6%95%B0%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.2.</span> <span class="toc-text">实数类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.3.</span> <span class="toc-text">字符串类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%97%B6%E6%9C%9F%E8%AE%BE%E6%97%B6%E9%97%B4%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.4.</span> <span class="toc-text">时期设时间类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%8D%E5%8E%8B%E7%BC%A9%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.5.</span> <span class="toc-text">位压缩类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#JSON-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.6.</span> <span class="toc-text">JSON 数据类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%89%E6%8B%A9%E6%A0%87%E8%AF%86%E7%AC%A6"><span class="toc-number">1.1.7.</span> <span class="toc-text">选择标识符</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.1.8.</span> <span class="toc-text">特殊类型</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#schema-%E8%AE%BE%E8%AE%A1%E9%99%B7%E9%98%B1"><span class="toc-number">1.2.</span> <span class="toc-text">schema 设计陷阱</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%AA%E5%A4%9A%E7%9A%84%E8%BF%9E%E6%8E%A5"><span class="toc-number">1.2.1.</span> <span class="toc-text">太多的连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%A8%E8%83%BD%E6%9E%9A%E4%B8%BE"><span class="toc-number">1.2.2.</span> <span class="toc-text">全能枚举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%98%E7%9B%B8%E6%9E%9A%E4%B8%BE"><span class="toc-number">1.2.3.</span> <span class="toc-text">变相枚举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#NULL-%E4%B8%8D%E6%98%AF%E8%99%9A%E6%8B%9F%E5%80%BC"><span class="toc-number">1.2.4.</span> <span class="toc-text">NULL 不是虚拟值</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql-%E4%B8%8D%E7%94%A8-null-%E7%9A%84%E7%90%86%E7%94%B1"><span class="toc-number">1.3.</span> <span class="toc-text">mysql 不用 null 的理由</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" title="常用解决方案">常用解决方案</a><time datetime="2023-01-02T09:32:58.000Z" title="发表于 2023-01-02 17:32:58">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/Go%20ORM/" title="Go ORM">Go ORM</a><time datetime="2023-01-02T05:10:25.000Z" title="发表于 2023-01-02 13:10:25">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E9%83%A8%E7%BD%B2/" title="Kubernetes 部署">Kubernetes 部署</a><time datetime="2022-12-31T06:27:06.000Z" title="发表于 2022-12-31 14:27:06">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E5%AE%89%E8%A3%85/" title="Kubernetes 安装">Kubernetes 安装</a><time datetime="2022-12-31T06:01:53.000Z" title="发表于 2022-12-31 14:01:53">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/" title="Kubernetes 简介">Kubernetes 简介</a><time datetime="2022-12-31T05:51:00.000Z" title="发表于 2022-12-31 13:51:00">2022-12-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By walker</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

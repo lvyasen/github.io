@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>雪花算法 | walker</title><meta name="author" content="walker"><meta name="copyright" content="walker"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="雪花算法的由来：  一：Twitter 使用 scala 语言开源了一种分布式 id 生成算法——SnowFlake 算法，被翻译成了雪花算法。 二：因为自然界中并不存在两片完全一样的雪花的，每一片雪花都拥有自己漂亮独特的形状、独一无二。雪花算法也表示生成的 ID 如雪花般独一无二。（有同学问为什么不是树叶，美团的叫树叶——Leaf）  组成雪花算法生成的 ID 是一个64 bit的 long">
+<meta property="og:type" content="article">
+<meta property="og:title" content="雪花算法">
+<meta property="og:url" content="http://example.com/2022/05/16/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="walker">
+<meta property="og:description" content="雪花算法的由来：  一：Twitter 使用 scala 语言开源了一种分布式 id 生成算法——SnowFlake 算法，被翻译成了雪花算法。 二：因为自然界中并不存在两片完全一样的雪花的，每一片雪花都拥有自己漂亮独特的形状、独一无二。雪花算法也表示生成的 ID 如雪花般独一无二。（有同学问为什么不是树叶，美团的叫树叶——Leaf）  组成雪花算法生成的 ID 是一个64 bit的 long">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-05-16T03:01:24.000Z">
+<meta property="article:modified_time" content="2023-01-03T00:52:11.715Z">
+<meta property="article:author" content="walker">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/05/16/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'mediumZoom',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '雪花算法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-03 08:52:11'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">walker</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">雪花算法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-16T03:01:24.000Z" title="发表于 2022-05-16 11:01:24">2022-05-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-03T00:52:11.715Z" title="更新于 2023-01-03 08:52:11">2023-01-03</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="雪花算法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.nlark.com/yuque/0/2022/png/25799318/1652670119805-a636216c-5edf-45f4-b88a-f7ae59ca5b64.png#clientId=u676892a5-ba49-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=uc3dc7ebe&margin=%5Bobject%20Object%5D&name=image.png&originHeight=678&originWidth=978&originalType=url%E2%88%B6=1&rotation=0&showTitle=false&size=120672&status=done&style=none&taskId=u60d5d3f8-72f3-44d7-a988-9759db8d397&title=" alt="image.png"></p>
+<p>雪花算法的由来：</p>
+<ul>
+<li>一：Twitter 使用 scala 语言开源了一种分布式 id 生成算法——SnowFlake 算法，被翻译成了雪花算法。</li>
+<li>二：因为自然界中并不存在两片完全一样的雪花的，每一片雪花都拥有自己漂亮独特的形状、独一无二。雪花算法也表示生成的 ID 如雪花般独一无二。（有同学问为什么不是树叶，美团的叫树叶——Leaf）</li>
+</ul>
+<h2 id="组成"><a href="#组成" class="headerlink" title="组成"></a><strong>组成</strong></h2><p>雪花算法生成的 ID 是一个<strong>64 bit</strong>的 long 型的数字且按<strong>时间趋势递增</strong>。大致由首位无效符、时间戳差值、机器编码，序列号四部分组成。<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.nlark.com/yuque/0/2022/png/25799318/1652670119626-cb50cbcc-0d6d-4c13-bfdf-b7e8440b15aa.png#clientId=u676892a5-ba49-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=ucceaf04b&margin=%5Bobject%20Object%5D&name=image.png&originHeight=156&originWidth=790&originalType=url%E2%88%B6=1&rotation=0&showTitle=false&size=62909&status=done&style=none&taskId=u81806e7f-6a70-45cb-822a-eef9f75a7ea&title=" alt="image.png"><br>如图：</p>
+<ul>
+<li>首位无效符：第一个 bit 作为符号位，因为我们生成的都是正数，所以第一个 bit 统一都是 0。</li>
+<li>时间戳：占用 41 bit ，精确到毫秒。41 位最好可以表示 2^41-1 毫秒，转化成单位年为 69 年。</li>
+<li>机器编码：占用 10bit，其中高位 5 bit 是数据中心 ID，低位 5 bit 是工作节点 ID，最多可以容纳 1024 个节点。</li>
+<li>序列号：占用 12bit，每个节点每毫秒 0 开始不断累加，最多可以累加到 4095，一共可以产生 4096 个 ID。</li>
+</ul>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a><strong>代码</strong></h2><p>SnowFlake.java</p>
+<p>&#x2F;**</p>
+<ul>
+<li>雪花算法类</li>
+<li>一条 coding<br><em>&#x2F;<br>public class SnowFlake {<br>&#x2F;&#x2F;本例将 10 位机器码看成是“5 位 datacenterId+5 位 workerId”<br>private long workerId;<br>private long datacenterId;<br>&#x2F;&#x2F;每毫秒生产的序列号之从 0 开始递增；<br>private long sequence &#x3D; 0L;<br>&#x2F;</em><br>1288834974657L 是 1970-01-01 00:00:00 到 2010 年 11 月 04 日 01:42:54 所经过的毫秒数；<br>因为现在二十一世纪的某一时刻减去 1288834974657L 的值，正好在 2^41 内。<br>因此 1288834974657L 实际上就是为了让时间戳正好在 2^41 内而凑出来的。<br>简言之，1288834974657L（即 1970-01-01 00:00:00），就是在计算时间戳时用到的“起始时间”。<br>*&#x2F;<br>private long twepoch &#x3D; 1288834974657L;</li>
+</ul>
+<p>private long workerIdBits &#x3D; 5L;<br>private long datacenterIdBits &#x3D; 5L;<br>private long maxWorkerId &#x3D; -1L ^ (-1L &lt;&lt;workerIdBits);<br>private long maxDatacenterId &#x3D; -1L ^ (-1L &lt;&lt;datacenterIdBits);<br>private long sequenceBits &#x3D; 12L;</p>
+<p>private long workerIdShift &#x3D; sequenceBits;<br>private long datacenterIdShift &#x3D; sequenceBits + workerIdBits;<br>private long timestampLeftShift &#x3D; sequenceBits + workerIdBits + datacenterIdBits;<br>private long sequenceMask &#x3D; -1L ^ (-1L &lt;&lt;sequenceBits);</p>
+<p>private long lastTimestamp &#x3D; -1L;</p>
+<p>public SnowFlake(long datacenterId, long workerId) {<br>if ((datacenterId &gt;maxDatacenterId || datacenterId &lt;0)<br>||(workerId &gt;maxWorkerId || workerId &lt;0)) {<br>throw new IllegalArgumentException(“datacenterId&#x2F;workerId 值非法”);<br>}<br>this.datacenterId &#x3D; datacenterId;<br>this.workerId &#x3D; workerId;<br>}</p>
+<p>&#x2F;&#x2F;通过 SnowFlake 生成 id 的核心算法<br>public synchronized long nextId() {<br>&#x2F;&#x2F;获取计算 id 时刻的时间戳<br>long timestamp &#x3D; System.currentTimeMillis();</p>
+<p>if (timestamp &lt;lastTimestamp) {<br>throw new RuntimeException(“时间戳值非法”);<br>}<br>&#x2F;&#x2F;如果此次生成 id 的时间戳，与上次的时间戳相同，就通过机器码和序列号区<br>&#x2F;&#x2F;分 id 值（机器码已通过构造方法传入）<br>if (lastTimestamp &#x3D;&#x3D; timestamp) {<br>&#x2F;_<br>下一条语句的作用是：通过位运算保证 sequence 不会超出序列号所能容纳的最大值。<br>例如，本程序产生的 12 位 sequence 值依次是：1、2、3、4、…、4094、4095<br>（4095 是 2 的 12 次方的最大值，也是本 sequence 的最大值）<br>那么此时如果再增加一个 sequence 值（即 sequence + 1），下条语句就会<br>使 sequence 恢复到 0。<br>即如果 sequence&#x3D;&#x3D;0，就表示 sequence 已满。<br><em>&#x2F;<br>sequence &#x3D; (sequence + 1) &amp;sequenceMask;<br>&#x2F;&#x2F;如果 sequence 已满，就无法再通过 sequence 区分 id 值；因此需要切换到<br>&#x2F;&#x2F;下一个时间戳重新计算。<br>if (sequence &#x3D;&#x3D; 0) {<br>timestamp &#x3D; tilNextMillis(lastTimestamp);<br>}<br>} else {<br>&#x2F;&#x2F;如果此次生成 id 的时间戳，与上次的时间戳不同，就已经可以根据时间戳区分 id 值<br>sequence &#x3D; 0L;<br>}<br>&#x2F;&#x2F;更新最近一次生成 id 的时间戳<br>lastTimestamp &#x3D; timestamp;<br>&#x2F;</em><br>假设此刻的值是（二进制表示）：<br>41 位时间戳的值是：00101011110101011101011101010101111101011<br>5 位 datacenterId（机器码的前 5 位）的值是：01101<br>5 位 workerId（机器码的后 5 位）的值是：11001<br>sequence 的值是：01001<br>那么最终生成的 id 值，就需要： 1.将 41 位时间戳左移动 22 位（即移动到 snowflake 值中时间戳应该出现的位置）； 2.将 5 位 datacenterId 向左移动 17 位，并将 5 位 workerId 向左移动 12 位<br>（即移动到 snowflake 值中机器码应该出现的位置）；<br>3.sequence 本来就在最低位，因此不需要移动。<br>以下&lt;&lt;和|运算，实际就是将时间戳、机器码和序列号移动到 snowflake 中相应的位置。<br>_&#x2F;<br>return ((timestamp - twepoch) &lt;&lt;timestampLeftShift)<br>| (datacenterId &lt;&lt;datacenterIdShift) | (workerId &lt;&lt;workerIdShift)<br>| sequence;<br>}</p>
+<p>protected long tilNextMillis(long lastTimestamp) {<br>long timestamp &#x3D; System.currentTimeMillis();<br>&#x2F;_<br>如果当前时刻的时间戳&lt;&#x3D;上一次生成 id 的时间戳，就重新生成当前时间。<br>即确保当前时刻的时间戳，与上一次的时间戳不会重复。<br>_&#x2F;<br>while (timestamp &lt;&#x3D; lastTimestamp) {<br>timestamp &#x3D; System.currentTimeMillis();<br>}<br>return timestamp;<br>}<br>}</p>
+<p><strong>TestSnowFlake.java</strong><br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.nlark.com/yuque/0/2022/png/25799318/1652670119930-67b1fff7-1266-44ff-adba-7b186923308b.png#clientId=u676892a5-ba49-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=ub2455a9a&margin=%5Bobject%20Object%5D&name=image.png&originHeight=609&originWidth=1073&originalType=url%E2%88%B6=1&rotation=0&showTitle=false&size=349221&status=done&style=none&taskId=u5da7f8e2-215c-41c1-a0e2-0dbad67e171&title=" alt="image.png"><br><strong>测试结果</strong><br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://cdn.nlark.com/yuque/0/2022/png/25799318/1652670119774-a0aeb3fd-421f-4117-adf8-339e572c83fb.png#clientId=u676892a5-ba49-4&crop=0&crop=0&crop=1&crop=1&from=paste&id=ue123d6ae&margin=%5Bobject%20Object%5D&name=image.png&originHeight=290&originWidth=1194&originalType=url%E2%88%B6=1&rotation=0&showTitle=false&size=162008&status=done&style=none&taskId=u46058ed9-42ba-4861-b83e-7ccd6a472de&title=" alt="image.png"></p>
+<h2 id="雪花算法缺点："><a href="#雪花算法缺点：" class="headerlink" title="雪花算法缺点："></a>雪花算法缺点：</h2><ul>
+<li>雪花算法生成 ID 一定是唯一的吗？</li>
+<li>机器码最多可以容纳 1024 个节点，超过 1024</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">walker</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/05/16/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/">http://example.com/2022/05/16/%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">walker</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/05/16/Redis%20%E9%9D%A2%E8%AF%95%E9%A2%98/"><img class="prev-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Redis 面试题</div></div></a></div><div class="next-post pull-right"><a href="/2022/05/09/Redis%20%E6%89%A9%E5%B1%95%E5%8A%9F%E8%83%BD/"><img class="next-cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Redis 扩展功能</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://thirdwx.qlogo.cn/mmopen/vi_32/BsLUROthXHzaLGgAuYiapwa4htsNc0H2MQ8sGkVHVNqib7viaqwhXK6KDXayjQBpkPY0gleTCqAcEPL1kEwjP9S0Q/132" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">walker</div><div class="author-info__description">学如逆水行舟不进则退</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">81</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">17</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">6</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/lvyasen" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:18530893662@163.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%84%E6%88%90"><span class="toc-number">1.</span> <span class="toc-text">组成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text">代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9B%AA%E8%8A%B1%E7%AE%97%E6%B3%95%E7%BC%BA%E7%82%B9%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">雪花算法缺点：</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/%E5%B8%B8%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/" title="常用解决方案">常用解决方案</a><time datetime="2023-01-02T09:32:58.000Z" title="发表于 2023-01-02 17:32:58">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2023/01/02/Go%20ORM/" title="Go ORM">Go ORM</a><time datetime="2023-01-02T05:10:25.000Z" title="发表于 2023-01-02 13:10:25">2023-01-02</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E9%83%A8%E7%BD%B2/" title="Kubernetes 部署">Kubernetes 部署</a><time datetime="2022-12-31T06:27:06.000Z" title="发表于 2022-12-31 14:27:06">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E5%AE%89%E8%A3%85/" title="Kubernetes 安装">Kubernetes 安装</a><time datetime="2022-12-31T06:01:53.000Z" title="发表于 2022-12-31 14:01:53">2022-12-31</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2022/12/31/Kubernetes%20%E7%AE%80%E4%BB%8B/" title="Kubernetes 简介">Kubernetes 简介</a><time datetime="2022-12-31T05:51:00.000Z" title="发表于 2022-12-31 13:51:00">2022-12-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2023 By walker</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="true"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
